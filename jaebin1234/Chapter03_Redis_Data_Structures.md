@@ -93,6 +93,8 @@ SET lock:resource1 "locked" NX EX 30
 # 락 해제
 DEL lock:resource1
 ```
+- ❓주의
+    - 대부분의 문자열 작업은 O(1)이므로 매우 효율적입니다. 그러나 O(n)이 될 수 있는 [**`SUBSTR`**](https://redis.io/commands/substr), [**`GETRANGE`**](https://redis.io/commands/getrange)및 명령에 주의하십시오. [**`SETRANGE`**](https://redis.io/commands/setrange)이러한 임의 액세스 문자열 명령은 큰 문자열을 처리할 때 성능 문제를 일으킬 수 있습니다.
 
 ### List
 - 스택(LPUSH/LPOP), 큐(RPUSH/LPOP)로 활용
@@ -140,6 +142,10 @@ LPUSH logs:payment-service "[2024-05-28 10:23:17] WARN [KafkaProducer]
 # 최근 100개의 로그만 유지 (이전 로그는 삭제)
 LTRIM logs:payment-service 0 99
 ```
+
+- ❓주의
+    - 헤드 또는 테일에 액세스하는 목록 작업은 O(1)이므로 매우 효율적입니다. 그러나 목록 내의 요소를 조작하는 명령은 일반적으로 O(n)입니다. 이러한 예에는 [**`LINDEX`**](https://redis.io/commands/lindex), [**`LINSERT`**](https://redis.io/commands/linsert)및 가 포함됩니다 [**`LSET`**](https://redis.io/commands/lset). 주로 큰 목록에서 작업할 때 이러한 명령을 실행할 때 주의하십시오.
+
 ### Hash
 - 필드-값 쌍을 저장하는 구조로 관계형 DB의 레코드와 유사
 - 메모리 효율적이며 빠른 접근 가능(HGETALL, HMGET)
@@ -223,6 +229,9 @@ SADD tags:post:789 "redis" "database" "nosql"
 # 공통 태그 찾기
 SINTER tags:post:789 tags:post:456
 ```
+
+- ❓주의
+  - 추가, 제거 및 항목이 집합 구성원인지 여부를 확인하는 등 대부분의 집합 작업은 O(1)입니다. 이것은 그들이 매우 효율적이라는 것을 의미합니다. 그러나 구성원이 수십만 명 이상인 대규모 집합의 경우 명령을 실행할 때 주의해야 합니다 [**`SMEMBERS`**](https://redis.io/commands/smembers). 이 명령은 O(n)이며 전체 집합을 단일 응답으로 반환합니다. 대안으로 [**`SSCAN`**](https://redis.io/commands/sscan)집합의 모든 구성원을 반복적으로 검색할 수 있는 를 고려하십시오.
 
 ### Sorted Set
 - 정렬된 데이터 저장 (스코어 기반)
